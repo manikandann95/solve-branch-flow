@@ -9,38 +9,188 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedTreesRouteImport } from './routes/_authenticated/trees'
+import { Route as AuthenticatedTrashRouteImport } from './routes/_authenticated/trash'
+import { Route as AuthenticatedTemplatesRouteImport } from './routes/_authenticated/templates'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedFavoritesRouteImport } from './routes/_authenticated/favorites'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedTreeIdSettingsRouteImport } from './routes/_authenticated/tree.$id.settings'
+import { Route as AuthenticatedTreeIdNavigateRouteImport } from './routes/_authenticated/tree.$id.navigate'
+import { Route as AuthenticatedTreeIdBuildRouteImport } from './routes/_authenticated/tree.$id.build'
 
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedTreesRoute = AuthenticatedTreesRouteImport.update({
+  id: '/trees',
+  path: '/trees',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedTrashRoute = AuthenticatedTrashRouteImport.update({
+  id: '/trash',
+  path: '/trash',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedTemplatesRoute = AuthenticatedTemplatesRouteImport.update({
+  id: '/templates',
+  path: '/templates',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedFavoritesRoute = AuthenticatedFavoritesRouteImport.update({
+  id: '/favorites',
+  path: '/favorites',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedTreeIdSettingsRoute =
+  AuthenticatedTreeIdSettingsRouteImport.update({
+    id: '/tree/$id/settings',
+    path: '/tree/$id/settings',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedTreeIdNavigateRoute =
+  AuthenticatedTreeIdNavigateRouteImport.update({
+    id: '/tree/$id/navigate',
+    path: '/tree/$id/navigate',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedTreeIdBuildRoute =
+  AuthenticatedTreeIdBuildRouteImport.update({
+    id: '/tree/$id/build',
+    path: '/tree/$id/build',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/favorites': typeof AuthenticatedFavoritesRoute
+  '/profile': typeof AuthenticatedProfileRoute
+  '/templates': typeof AuthenticatedTemplatesRoute
+  '/trash': typeof AuthenticatedTrashRoute
+  '/trees': typeof AuthenticatedTreesRoute
+  '/tree/$id/build': typeof AuthenticatedTreeIdBuildRoute
+  '/tree/$id/navigate': typeof AuthenticatedTreeIdNavigateRoute
+  '/tree/$id/settings': typeof AuthenticatedTreeIdSettingsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/favorites': typeof AuthenticatedFavoritesRoute
+  '/profile': typeof AuthenticatedProfileRoute
+  '/templates': typeof AuthenticatedTemplatesRoute
+  '/trash': typeof AuthenticatedTrashRoute
+  '/trees': typeof AuthenticatedTreesRoute
+  '/tree/$id/build': typeof AuthenticatedTreeIdBuildRoute
+  '/tree/$id/navigate': typeof AuthenticatedTreeIdNavigateRoute
+  '/tree/$id/settings': typeof AuthenticatedTreeIdSettingsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/favorites': typeof AuthenticatedFavoritesRoute
+  '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/templates': typeof AuthenticatedTemplatesRoute
+  '/_authenticated/trash': typeof AuthenticatedTrashRoute
+  '/_authenticated/trees': typeof AuthenticatedTreesRoute
+  '/_authenticated/tree/$id/build': typeof AuthenticatedTreeIdBuildRoute
+  '/_authenticated/tree/$id/navigate': typeof AuthenticatedTreeIdNavigateRoute
+  '/_authenticated/tree/$id/settings': typeof AuthenticatedTreeIdSettingsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/favorites'
+    | '/profile'
+    | '/templates'
+    | '/trash'
+    | '/trees'
+    | '/tree/$id/build'
+    | '/tree/$id/navigate'
+    | '/tree/$id/settings'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/favorites'
+    | '/profile'
+    | '/templates'
+    | '/trash'
+    | '/trees'
+    | '/tree/$id/build'
+    | '/tree/$id/navigate'
+    | '/tree/$id/settings'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/favorites'
+    | '/_authenticated/profile'
+    | '/_authenticated/templates'
+    | '/_authenticated/trash'
+    | '/_authenticated/trees'
+    | '/_authenticated/tree/$id/build'
+    | '/_authenticated/tree/$id/navigate'
+    | '/_authenticated/tree/$id/settings'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +198,103 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/trees': {
+      id: '/_authenticated/trees'
+      path: '/trees'
+      fullPath: '/trees'
+      preLoaderRoute: typeof AuthenticatedTreesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/trash': {
+      id: '/_authenticated/trash'
+      path: '/trash'
+      fullPath: '/trash'
+      preLoaderRoute: typeof AuthenticatedTrashRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/templates': {
+      id: '/_authenticated/templates'
+      path: '/templates'
+      fullPath: '/templates'
+      preLoaderRoute: typeof AuthenticatedTemplatesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/favorites': {
+      id: '/_authenticated/favorites'
+      path: '/favorites'
+      fullPath: '/favorites'
+      preLoaderRoute: typeof AuthenticatedFavoritesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/tree/$id/settings': {
+      id: '/_authenticated/tree/$id/settings'
+      path: '/tree/$id/settings'
+      fullPath: '/tree/$id/settings'
+      preLoaderRoute: typeof AuthenticatedTreeIdSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/tree/$id/navigate': {
+      id: '/_authenticated/tree/$id/navigate'
+      path: '/tree/$id/navigate'
+      fullPath: '/tree/$id/navigate'
+      preLoaderRoute: typeof AuthenticatedTreeIdNavigateRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/tree/$id/build': {
+      id: '/_authenticated/tree/$id/build'
+      path: '/tree/$id/build'
+      fullPath: '/tree/$id/build'
+      preLoaderRoute: typeof AuthenticatedTreeIdBuildRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedFavoritesRoute: typeof AuthenticatedFavoritesRoute
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedTemplatesRoute: typeof AuthenticatedTemplatesRoute
+  AuthenticatedTrashRoute: typeof AuthenticatedTrashRoute
+  AuthenticatedTreesRoute: typeof AuthenticatedTreesRoute
+  AuthenticatedTreeIdBuildRoute: typeof AuthenticatedTreeIdBuildRoute
+  AuthenticatedTreeIdNavigateRoute: typeof AuthenticatedTreeIdNavigateRoute
+  AuthenticatedTreeIdSettingsRoute: typeof AuthenticatedTreeIdSettingsRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedFavoritesRoute: AuthenticatedFavoritesRoute,
+  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedTemplatesRoute: AuthenticatedTemplatesRoute,
+  AuthenticatedTrashRoute: AuthenticatedTrashRoute,
+  AuthenticatedTreesRoute: AuthenticatedTreesRoute,
+  AuthenticatedTreeIdBuildRoute: AuthenticatedTreeIdBuildRoute,
+  AuthenticatedTreeIdNavigateRoute: AuthenticatedTreeIdNavigateRoute,
+  AuthenticatedTreeIdSettingsRoute: AuthenticatedTreeIdSettingsRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
