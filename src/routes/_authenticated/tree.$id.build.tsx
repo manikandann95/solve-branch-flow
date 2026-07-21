@@ -177,7 +177,7 @@ function Builder() {
           onEdgeDoubleClick={(_, e) => {
             const label = prompt("Edge label", (e.label as string) ?? "");
             if (label !== null) {
-              setEdges((es) => es.map((x) => x.id === e.id ? { ...x, label } : x));
+              setEdges((es: Edge[]) => es.map((x: Edge) => x.id === e.id ? { ...x, label } : x));
               setDirty(true);
             }
           }}
