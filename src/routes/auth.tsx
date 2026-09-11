@@ -27,7 +27,6 @@ function AuthPage() {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
   const [confirmationEmail, setConfirmationEmail] = useState<string | null>(null);
   const [resending, setResending] = useState(false);
   const [resent, setResent] = useState(false);
@@ -63,7 +62,6 @@ function AuthPage() {
       password,
       options: {
         emailRedirectTo: window.location.origin,
-        data: { name },
       },
     });
     setLoading(false);
@@ -141,6 +139,7 @@ function AuthPage() {
           </div>
           <span className="text-lg font-bold tracking-tight">TroubleshootFlow</span>
         </Link>
+        <h1 className="sr-only">Access TroubleshootFlow</h1>
 
         <Tabs defaultValue="signin">
           <TabsList className="grid w-full grid-cols-2">
@@ -177,10 +176,6 @@ function AuthPage() {
 
           <TabsContent value="signup">
             <form onSubmit={signUp} className="mt-6 space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="name">Name</Label>
-                <Input id="name" required value={name} onChange={(e) => setName(e.target.value)} placeholder="Jane Doe" />
-              </div>
               <div className="space-y-1.5">
                 <Label htmlFor="email2">Email</Label>
                 <Input id="email2" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
