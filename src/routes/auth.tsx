@@ -77,12 +77,16 @@ function AuthPage() {
     nav({ to: "/dashboard", replace: true });
   }
 
-  async function resendConfirmation() {
-    if (!confirmationEmail) return;
+  async function resendConfirmation(targetEmail?: string) {
+    const emailToConfirm = targetEmail ?? confirmationEmail;
+    if (!emailToConfirm) {
+      toast.error("Enter your email address first.");
+      return;
+    }
     setResending(true);
     const { error } = await supabase.auth.resend({
       type: "signup",
-      email: confirmationEmail,
+      email: emailToConfirm,
       options: { emailRedirectTo: window.location.origin },
     });
     setResending(false);
@@ -105,7 +109,7 @@ function AuthPage() {
             Open it to activate your account, then sign in.
           </p>
           <div className="mt-6 space-y-3">
-            <Button className="w-full" onClick={resendConfirmation} disabled={resending || resent}>
+            <Button className="w-full" onClick={() => resendConfirmation()} disabled={resending || resent}>
               {resending && <Loader2 className="h-4 w-4 animate-spin" />}
               {resent ? "Confirmation email sent" : "Resend confirmation email"}
             </Button>
@@ -157,6 +161,16 @@ function AuthPage() {
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Sign in
+              </Button>
+              <Button
+                type="button"
+                variant="link"
+                className="h-auto w-full py-1"
+                disabled={resending}
+                onClick={() => resendConfirmation(email)}
+              >
+                {resending && <Loader2 className="h-4 w-4 animate-spin" />}
+                Resend confirmation email
               </Button>
             </form>
           </TabsContent>
