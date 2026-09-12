@@ -62,6 +62,11 @@ function AuthPage() {
 
   async function signUp(e: React.FormEvent) {
     e.preventDefault();
+    if (Number(challengeAnswer) !== challenge.a + challenge.b) {
+      setChallenge(randomChallenge());
+      setChallengeAnswer("");
+      return toast.error("Verification answer is incorrect. Please try again.");
+    }
     setLoading(true);
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -70,12 +75,18 @@ function AuthPage() {
         emailRedirectTo: window.location.origin,
       },
     });
-    setLoading(false);
-    if (error) return toast.error(error.message);
+    if (error) {
+      setLoading(false);
+      setChallenge(randomChallenge());
+      setChallengeAnswer("");
+      return toast.error(error.message);
+    }
     if (!data.session) {
-      setConfirmationEmail(email);
-      setResent(false);
-      return;
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      setLoading(false);
+      if (signInError) return toast.error(signInError.message);
+    } else {
+      setLoading(false);
     }
     toast.success("Account created");
     nav({ to: "/dashboard", replace: true });
