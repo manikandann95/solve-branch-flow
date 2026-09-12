@@ -22,6 +22,10 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
+function randomChallenge() {
+  return { a: 2 + Math.floor(Math.random() * 8), b: 1 + Math.floor(Math.random() * 8) };
+}
+
 function AuthPage() {
   const nav = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -30,6 +34,8 @@ function AuthPage() {
   const [confirmationEmail, setConfirmationEmail] = useState<string | null>(null);
   const [resending, setResending] = useState(false);
   const [resent, setResent] = useState(false);
+  const [challenge, setChallenge] = useState(randomChallenge);
+  const [challengeAnswer, setChallengeAnswer] = useState("");
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
