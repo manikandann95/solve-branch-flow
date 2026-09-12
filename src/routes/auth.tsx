@@ -22,6 +22,10 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
+function randomChallenge() {
+  return { a: 2 + Math.floor(Math.random() * 8), b: 1 + Math.floor(Math.random() * 8) };
+}
+
 function AuthPage() {
   const nav = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -30,6 +34,8 @@ function AuthPage() {
   const [confirmationEmail, setConfirmationEmail] = useState<string | null>(null);
   const [resending, setResending] = useState(false);
   const [resent, setResent] = useState(false);
+  const [challenge, setChallenge] = useState(randomChallenge);
+  const [challengeAnswer, setChallengeAnswer] = useState("");
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -56,6 +62,11 @@ function AuthPage() {
 
   async function signUp(e: React.FormEvent) {
     e.preventDefault();
+    if (Number(challengeAnswer) !== challenge.a + challenge.b) {
+      setChallenge(randomChallenge());
+      setChallengeAnswer("");
+      return toast.error("Verification answer is incorrect. Please try again.");
+    }
     setLoading(true);
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -64,12 +75,18 @@ function AuthPage() {
         emailRedirectTo: window.location.origin,
       },
     });
-    setLoading(false);
-    if (error) return toast.error(error.message);
+    if (error) {
+      setLoading(false);
+      setChallenge(randomChallenge());
+      setChallengeAnswer("");
+      return toast.error(error.message);
+    }
     if (!data.session) {
-      setConfirmationEmail(email);
-      setResent(false);
-      return;
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      setLoading(false);
+      if (signInError) return toast.error(signInError.message);
+    } else {
+      setLoading(false);
     }
     toast.success("Account created");
     nav({ to: "/dashboard", replace: true });
@@ -183,6 +200,20 @@ function AuthPage() {
               <div className="space-y-1.5">
                 <Label htmlFor="password2">Password</Label>
                 <Input id="password2" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="challenge">
+                  Human check: what is {challenge.a} + {challenge.b}?
+                </Label>
+                <Input
+                  id="challenge"
+                  type="text"
+                  inputMode="numeric"
+                  required
+                  value={challengeAnswer}
+                  onChange={(e) => setChallengeAnswer(e.target.value)}
+                  placeholder="Your answer"
+                />
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
