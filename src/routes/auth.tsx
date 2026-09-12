@@ -201,6 +201,20 @@ function AuthPage() {
                 <Label htmlFor="password2">Password</Label>
                 <Input id="password2" type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} />
               </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="challenge">
+                  Human check: what is {challenge.a} + {challenge.b}?
+                </Label>
+                <Input
+                  id="challenge"
+                  type="text"
+                  inputMode="numeric"
+                  required
+                  value={challengeAnswer}
+                  onChange={(e) => setChallengeAnswer(e.target.value)}
+                  placeholder="Your answer"
+                />
+              </div>
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Create account
