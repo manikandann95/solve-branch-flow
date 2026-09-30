@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, CheckCircle2, GitBranch, Loader2, Mail } from "lucide-react";
+import { GitBranch, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -28,12 +28,11 @@ function randomChallenge() {
 
 function AuthPage() {
   const nav = useNavigate();
+  const [tab, setTab] = useState("signin");
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmationEmail, setConfirmationEmail] = useState<string | null>(null);
-  const [resending, setResending] = useState(false);
-  const [resent, setResent] = useState(false);
+  const [resetting, setResetting] = useState(false);
   const [challenge, setChallenge] = useState(randomChallenge);
   const [challengeAnswer, setChallengeAnswer] = useState("");
 
@@ -46,14 +45,12 @@ function AuthPage() {
   async function signIn(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
     setLoading(false);
     if (error) {
-      const message = error.message.toLowerCase().includes("email not confirmed")
-        ? "Confirm your email using the link we sent before signing in."
-        : error.message.toLowerCase().includes("invalid login credentials")
-          ? "Email or password is incorrect. If you just signed up, confirm your email first."
-          : error.message;
+      const message = error.message.toLowerCase().includes("invalid login credentials")
+        ? "Email or password is incorrect. Use “Forgot password?” to set a new one."
+        : error.message;
       return toast.error(message);
     }
     toast.success("Welcome back");
@@ -68,23 +65,24 @@ function AuthPage() {
       return toast.error("Verification answer is incorrect. Please try again.");
     }
     setLoading(true);
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: window.location.origin,
-      },
-    });
+    const { data, error } = await supabase.auth.signUp({ email: email.trim(), password });
     if (error) {
       setLoading(false);
       setChallenge(randomChallenge());
       setChallengeAnswer("");
+      if (error.message.toLowerCase().includes("already registered")) {
+        setTab("signin");
+        return toast.error("This email already has an account. Sign in instead, or use “Forgot password?”.");
+      }
       return toast.error(error.message);
     }
     if (!data.session) {
-      const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
       setLoading(false);
-      if (signInError) return toast.error(signInError.message);
+      if (signInError) {
+        setTab("signin");
+        return toast.error("This email may already have an account. Sign in, or use “Forgot password?”.");
+      }
     } else {
       setLoading(false);
     }
@@ -92,56 +90,16 @@ function AuthPage() {
     nav({ to: "/dashboard", replace: true });
   }
 
-  async function resendConfirmation(targetEmail?: string) {
-    const emailToConfirm = targetEmail ?? confirmationEmail;
-    if (!emailToConfirm) {
-      toast.error("Enter your email address first.");
-      return;
-    }
-    setResending(true);
-    const { error } = await supabase.auth.resend({
-      type: "signup",
-      email: emailToConfirm,
-      options: { emailRedirectTo: window.location.origin },
+  async function forgotPassword() {
+    const target = email.trim();
+    if (!target) return toast.error("Enter your email address first.");
+    setResetting(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(target, {
+      redirectTo: `${window.location.origin}/reset-password`,
     });
-    setResending(false);
+    setResetting(false);
     if (error) return toast.error(error.message);
-    setResent(true);
-    toast.success("Confirmation email sent");
-  }
-
-  if (confirmationEmail) {
-    return (
-      <div className="relative grid min-h-screen place-items-center overflow-hidden px-4">
-        <div className="absolute inset-0 grid-bg opacity-40" />
-        <div className="glass relative w-full max-w-md rounded-2xl p-8 text-center">
-          <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-primary/20 text-primary">
-            {resent ? <CheckCircle2 className="h-6 w-6" /> : <Mail className="h-6 w-6" />}
-          </div>
-          <h1 className="mt-5 text-2xl font-bold">Check your email</h1>
-          <p className="mt-3 text-sm text-muted-foreground">
-            We sent a confirmation link to <span className="font-medium text-foreground">{confirmationEmail}</span>.
-            Open it to activate your account, then sign in.
-          </p>
-          <div className="mt-6 space-y-3">
-            <Button className="w-full" onClick={() => resendConfirmation()} disabled={resending || resent}>
-              {resending && <Loader2 className="h-4 w-4 animate-spin" />}
-              {resent ? "Confirmation email sent" : "Resend confirmation email"}
-            </Button>
-            <Button
-              variant="ghost"
-              className="w-full"
-              onClick={() => {
-                setConfirmationEmail(null);
-                setPassword("");
-              }}
-            >
-              <ArrowLeft className="h-4 w-4" /> Back to sign in
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
+    toast.success("Password reset link sent. Check your inbox and spam folder.");
   }
 
   return (
@@ -158,7 +116,7 @@ function AuthPage() {
         </Link>
         <h1 className="sr-only">Access TroubleshootFlow</h1>
 
-        <Tabs defaultValue="signin">
+        <Tabs value={tab} onValueChange={setTab}>
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="signin">Sign in</TabsTrigger>
             <TabsTrigger value="signup">Create account</TabsTrigger>
@@ -171,22 +129,23 @@ function AuthPage() {
                 <Input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="engineer@company.com" />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="password">Password</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password">Password</Label>
+                  <button
+                    type="button"
+                    onClick={forgotPassword}
+                    disabled={resetting}
+                    className="inline-flex items-center gap-1 text-xs text-primary hover:underline disabled:opacity-60"
+                  >
+                    {resetting && <Loader2 className="h-3 w-3 animate-spin" />}
+                    Forgot password?
+                  </button>
+                </div>
                 <Input id="password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Sign in
-              </Button>
-              <Button
-                type="button"
-                variant="link"
-                className="h-auto w-full py-1"
-                disabled={resending}
-                onClick={() => resendConfirmation(email)}
-              >
-                {resending && <Loader2 className="h-4 w-4 animate-spin" />}
-                Resend confirmation email
               </Button>
             </form>
           </TabsContent>
@@ -219,6 +178,7 @@ function AuthPage() {
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Create account
               </Button>
+              <p className="text-center text-xs text-muted-foreground">No email confirmation needed — you're signed in right away.</p>
             </form>
           </TabsContent>
         </Tabs>
