@@ -10,7 +10,10 @@ import { Input } from "@/components/ui/input";
 import type { User } from "@supabase/supabase-js";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { Shield } from "lucide-react";
+import { checkIsAdmin } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -37,6 +40,9 @@ function AuthLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const nav = useNavigate();
   const qc = useQueryClient();
+  const checkAdmin = useServerFn(checkIsAdmin);
+  const { data: adminData } = useQuery({ queryKey: ["is-admin"], queryFn: () => checkAdmin() });
+  const isAdmin = !!adminData?.isAdmin;
 
   // Auto-collapse chrome for full-canvas routes
   const isCanvasRoute = /^\/tree\/[^/]+\/(build|navigate)$/.test(pathname);
@@ -95,6 +101,18 @@ function AuthLayout() {
               </Link>
             );
           })}
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className={cn(
+                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-sidebar-foreground/80 transition-colors",
+                pathname === "/admin" ? "bg-primary/15 text-primary" : "hover:bg-sidebar-accent hover:text-foreground",
+              )}
+            >
+              <Shield className="h-4 w-4 shrink-0" />
+              {open && <span className="truncate">Admin</span>}
+            </Link>
+          )}
         </nav>
         <div className="border-t border-sidebar-border p-2">
           <Link
