@@ -38,7 +38,7 @@ function AdminPage() {
   const [newEmail, setNewEmail] = useState("");
   const [newPass, setNewPass] = useState("");
 
-  async function run(input: Parameters<typeof act>[0]["data"], msg: string) {
+  async function run(input: any, msg: string) {
     try {
       await act({ data: input });
       toast.success(msg);
