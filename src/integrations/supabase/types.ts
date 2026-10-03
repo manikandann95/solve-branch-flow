@@ -56,6 +56,8 @@ export type Database = {
           email: string | null
           id: string
           name: string | null
+          security_answer_hash: string | null
+          security_question: string | null
           updated_at: string
         }
         Insert: {
@@ -64,6 +66,8 @@ export type Database = {
           email?: string | null
           id: string
           name?: string | null
+          security_answer_hash?: string | null
+          security_question?: string | null
           updated_at?: string
         }
         Update: {
@@ -72,6 +76,8 @@ export type Database = {
           email?: string | null
           id?: string
           name?: string | null
+          security_answer_hash?: string | null
+          security_question?: string | null
           updated_at?: string
         }
         Relationships: []
